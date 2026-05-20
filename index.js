@@ -29,6 +29,13 @@ app.get("/notes",(req,res)=>{
 })
 
 
+//***IMPORTANT 
+// above all were backend end point 
+// but this time we are writing for frontend end point beacuse we are both-frontend and backend developer 
+app.get("/",(req,res)=>{
+    res.sendFile("/home/arpit/classes_webDevelopment/notes_apk/frontend/index.html")
+})
+
 app.listen(3000,()=> {
     console.log("The Server is running properly")
 })
