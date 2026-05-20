@@ -22,8 +22,10 @@ app.post("/notes",(req,res)=>{
 
 
 //get all my notes 
-app.get("/",(req,res)=>{
-    
+app.get("/notes",(req,res)=>{
+    res.json({
+        notes
+    })
 })
 
 
