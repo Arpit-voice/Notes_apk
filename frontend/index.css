@@ -1,0 +1,35 @@
+body{
+    /* background-color: blueviolet; */
+}
+#biggestDiv{
+    display: flex ;
+    justify-content: space-between;
+    /* background-color: black; */
+}
+#notes{
+    flex :1;
+    /* background-color: red; */
+}
+.note{
+    border :2px solid black ;
+    border-radius: 10px ;
+    padding: 20px;
+    margin :20px
+}
+#rightSideThings{
+    display:flex;
+    flex-direction: column;
+    justify-content: center;
+    flex:1;
+    /* background-color: green; */
+}
+#inp{
+    /* background-color: aqua; */
+}
+#inp::placeholder{
+    /* color : blue; */
+}
+#button{
+    border: 2px solid black;
+    border-radius: 6px;
+}
