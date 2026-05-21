@@ -26,8 +26,14 @@
             </div>
             
             <script>
-                function GetTODOs(){
-                    alert("hi baby ,Loading now  ,u just wait for some time ")
+                //getting data from backend to the frontend
+                async function GetTODOs(){
+                    const response = await fetch("http://localhost:3000/notes")
+                    const json = await response.json();
+                    console.log(json.notes);
+
+                    //2nd way 
+                    const res= await axios.get()
                 }
                 GetTODOs();
             </script>
