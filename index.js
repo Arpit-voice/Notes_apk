@@ -7,7 +7,7 @@ app.use(express.json())
 const path = require("path");
 app.use(express.static("frontend"));  ////css file also came 
 
-const notes = [] // this is bad (in memory db-storing in a variable like this), later we will use mongodb,postgres and mysql for storing databases
+const notes = [{"msg" :"aaj ka khana"}] // this is bad (in memory db-storing in a variable like this), later we will use mongodb,postgres and mysql for storing databases
 
 //create a note //client give the note in json body 
 app.post("/notes",(req,res)=>{

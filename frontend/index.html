@@ -16,8 +16,8 @@
             </div> 
             <div class="note">
                 <h2>heading</h2>
-                <p>content will be get dumped here </p> -->
-            </div> 
+                <p>content will be get dumped here </p> 
+            </div>  -->
         </div>
         <div id="rightSideThings">
             <div style="display: flex;justify-content: center;">
@@ -26,19 +26,30 @@
             <div style="display: flex;justify-content: center;">
                 <button id="button">Add Note</button>
             </div>
-            
-            <script>
-                //getting data from backend to the frontend
-                async function GetTODOs(){
-                    const response = await axios.get("http://localhost:3000/notes");
-                    console.log(response.data.notes)
-                }
-                GetTODOs();
-            </script>
-            
-            
+               
         </div>
     </div>
+    <!-- //script should be below all html code  -->
+    <script>
+        //getting data from backend to the frontend
+        async function GetTODOs(){
+            const response = await axios.get("http://localhost:3000/notes");
+            const notes = response.data.notes;
+
+            document.getElementById("notes").innerHTML= "";
+            // appending the notes one by one 
+            for (let i = 0; i < notes.length; i++) {
+                const element = notes[i]  ;
+                const newDiv = document.createElement("div") 
+                newDiv.setAttribute("class","note")
+                newDiv.setAttribute("style","border :2px solid black ;border-radius: 10px ; padding: 20px;margin :20px")
+                newDiv.innerHTML= element.msg
+
+                document.getElementById("notes").appendChild(newDiv);
+            }                  
+        }
+        GetTODOs();
+    </script>
 
 
 </body>
