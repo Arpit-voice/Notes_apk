@@ -3,7 +3,7 @@
 <head>
     <title>Notes-apk by arpit</title>
     <link rel="stylesheet" href ="index.css">
-    <script> </script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body>
     <div id="biggestDiv">
@@ -28,12 +28,8 @@
             <script>
                 //getting data from backend to the frontend
                 async function GetTODOs(){
-                    const response = await fetch("http://localhost:3000/notes")
-                    const json = await response.json();
-                    console.log(json.notes);
-
-                    //2nd way 
-                    const res= await axios.get()
+                    const response = await axios.get("http://localhost:3000/notes");
+                    console.log(response.data.notes);
                 }
                 GetTODOs();
             </script>
