@@ -8,13 +8,15 @@
 <body>
     <div id="biggestDiv">
         <div id="notes">
+            Loading...
+            <!-- in the starting it will be empty na !!
             <div class="note">
                 <h2>heading</h2>
                 <p>content will be get dumped here </p>
             </div> 
             <div class="note">
                 <h2>heading</h2>
-                <p>content will be get dumped here </p>
+                <p>content will be get dumped here </p> -->
             </div> 
         </div>
         <div id="rightSideThings">
@@ -29,7 +31,7 @@
                 //getting data from backend to the frontend
                 async function GetTODOs(){
                     const response = await axios.get("http://localhost:3000/notes");
-                    console.log(response.data.notes);
+                    console.log(response.data.notes)
                 }
                 GetTODOs();
             </script>
