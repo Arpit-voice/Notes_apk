@@ -9,6 +9,8 @@ const path = require("path");
 app.use(express.static("frontend"));  ////css file also came 
 
 const notes = [] // this is bad (in memory db-storing in a variable like this), later we will use mongodb,postgres and mysql for storing databases
+// for multi users notes structure will change to array of objects instead of string
+// const notes = [{username :"Arpit",note :"go to bed"}]
 const users = [{
     username : "Arpit",
     password : "123123"
@@ -98,7 +100,7 @@ app.post("/notes",(req,res)=>{
 
     const new_note= req.body.note;
     // stored the note that came from the client
-    notes.push(new_note); 
+    notes.push({note:new_note,userename :ourUser}); 
     // lets send user a msg :)
     
     res.json({
@@ -112,7 +114,7 @@ app.post("/notes",(req,res)=>{
 //get all my notes -- AUTHENTICATED END POINT 
 app.get("/notes",(req,res)=>{
     res.json({
-        notes
+        notes : notes
     })
 })
 
