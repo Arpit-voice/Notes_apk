@@ -24,7 +24,7 @@
                 <input id="inp" placeholder="write your notes" type = "text">
             </div>
             <div style="display: flex;justify-content: center;">
-                <button id="button">Add Note</button>
+                <button id="button" onclick ="addNote()">Add Note</button>
             </div>
                
         </div>
@@ -43,12 +43,30 @@
                 const newDiv = document.createElement("div") 
                 newDiv.setAttribute("class","note")
                 newDiv.setAttribute("style","border :2px solid black ;border-radius: 10px ; padding: 20px;margin :20px")
-                newDiv.innerHTML= element.msg
+                newDiv.innerHTML= element
 
                 document.getElementById("notes").appendChild(newDiv);
             }                  
         }
         GetTODOs();
+
+        async function addNote(){
+            const inputText = document.getElementById("inp").value
+            
+            const response = await axios.post("http://localhost:3000/notes",{
+                note: inputText
+            });
+
+            // create new div
+            const newDiv = document.createElement("div") 
+            newDiv.setAttribute("class","note")
+            newDiv.setAttribute("style","border :2px solid black ;border-radius: 10px ; padding: 20px;margin :20px")
+            newDiv.innerHTML= inputText
+            document.getElementById("notes").appendChild(newDiv);
+
+            //empty the input box
+            document.getElementById("inp").value =""
+        }
     </script>
 
 
