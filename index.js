@@ -40,6 +40,30 @@ app.post("/signup",(req,res)=>{
     })
 })
 
+//signin page 
+
+app.get("/signin",(req,res)=>{
+    const givenUsername = req.body.userName;
+    const givenPassword = req.body.password;
+
+    const userExist = users.find(user => user.username === givenUsername && user.password === givenPassword  )
+    if(!userExist){
+        res.status(403).json({
+            msg : "Incorrect Credentials"
+        })
+        return 
+    }
+
+    // lets say user exist /// now server backend person will create some token(string) with their encryption method 
+    // and return the token to the browser
+    // now onwards the browser will send me this token as a request in header  
+    const token = givenUsername *5 +2-18328 +"qwertyuioasdfghjkzxcvbn"   // for example //  but predictable
+
+    res.json({
+        token : token
+    })
+    
+})
 
 
 
