@@ -7,7 +7,41 @@ app.use(express.json())
 const path = require("path");
 app.use(express.static("frontend"));  ////css file also came 
 
-const notes = ["hihi"] // this is bad (in memory db-storing in a variable like this), later we will use mongodb,postgres and mysql for storing databases
+const notes = [] // this is bad (in memory db-storing in a variable like this), later we will use mongodb,postgres and mysql for storing databases
+const users = [{
+    username : "Arpit",
+    password : "123123"
+},{
+    username : "Soni",
+    password : "321321"
+}]
+
+
+// signup page 
+app.post("/signup",(req,res)=>{
+    const newUsername = req.body.userName;
+    const userPassword = req.body.password;
+
+    const userExist = users.find(user => user.username == newUsername )
+    if(userExist){
+        return res.status(403).json({
+            msg : "User with this username already exists"
+        })
+    }
+
+    user.push({
+        username : newUsername,
+        password : userPassword
+
+    })
+
+    res.json({
+        msg : "You have signed up"
+    })
+})
+
+
+
 
 //create a note //client give the note in json body 
 app.post("/notes",(req,res)=>{
