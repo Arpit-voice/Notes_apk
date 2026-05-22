@@ -22,7 +22,7 @@ const users = [{
 
 // signup page 
 app.post("/signup",(req,res)=>{
-    const newUsername = req.body.userName;
+    const newUsername = req.body.username;
     const userPassword = req.body.password;
 
     const userExist = users.find(user => user.username == newUsername )
@@ -46,7 +46,7 @@ app.post("/signup",(req,res)=>{
 //signin page 
 
 app.get("/signin",(req,res)=>{
-    const givenUsername = req.body.userName;
+    const givenUsername = req.body.username;
     const givenPassword = req.body.password;
 
     const userExist = users.find(user => user.username === givenUsername && user.password === givenPassword  )
