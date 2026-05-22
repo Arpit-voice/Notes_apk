@@ -33,7 +33,11 @@
     <script>
         //getting data from backend to the frontend
         async function GetTODOs(){
-            const response = await axios.get("http://localhost:3000/notes");
+            const response = await axios.get("http://localhost:3000/notes",{
+                headers :{
+                    "token" : localStorage.getItem("token")
+                }
+            });
             const notes = response.data.notes;
 
             document.getElementById("notes").innerHTML= "";
@@ -43,7 +47,7 @@
                 const newDiv = document.createElement("div") 
                 newDiv.setAttribute("class","note")
                 newDiv.setAttribute("style","border :2px solid black ;border-radius: 10px ; padding: 20px;margin :20px")
-                newDiv.innerHTML= element
+                newDiv.innerHTML= element.note
 
                 document.getElementById("notes").appendChild(newDiv);
             }                  
@@ -55,6 +59,10 @@
             
             const response = await axios.post("http://localhost:3000/notes",{
                 note: inputText
+            },{
+                headers : {
+                    "token" : localStorage.getItem("token")
+                }
             });
 
             // create new div

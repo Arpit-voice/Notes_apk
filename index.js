@@ -44,8 +44,8 @@ app.post("/signup",(req,res)=>{
 })
 
 //signin page 
-
-app.get("/signin",(req,res)=>{
+// :( signin is a post method:) get req have no body
+app.post("/signin",(req,res)=>{
     const givenUsername = req.body.username;
     const givenPassword = req.body.password;
 
@@ -147,6 +147,12 @@ app.get("/notes",(req,res)=>{
 // UN-AUTHENTICATED END POINT
 app.get("/",(req,res)=>{
     res.sendFile("/home/arpit/classes_webDevelopment/notes_apk/frontend/index.html")
+})
+app.get("/signup",(req,res)=>{
+    res.sendFile("/home/arpit/classes_webDevelopment/notes_apk/frontend/signup.html")
+})
+app.get("/signin",(req,res)=>{
+    res.sendFile("/home/arpit/classes_webDevelopment/notes_apk/frontend/signin.html")
 })
 
 app.listen(3000,()=> {
