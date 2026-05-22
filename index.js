@@ -1,5 +1,6 @@
 const express = require("express");
 const jwt = require("jsonwebtoken")
+const{ authMiddleware } = require("./middlewares")
 
 const app = express();
 
@@ -76,27 +77,8 @@ app.post("/signin",(req,res)=>{
 
 //create a note //client give the note in json body 
 //AUTHENTICATED END POINT 
-app.post("/notes",(req,res)=>{
-    //auth things
-    const given_token = req.headers.token;
-    
-    //if they didnt sent the token
-    if(!given_token){
-        res.status(403).send({
-            msg : "You are not logged in"
-        })
-        return;
-    }
-    const decrypted_token = jwt.verify(given_token ,"secretkey");
-    const ourUser = decrypted_token.username;
-    // if there is no username like this
-    if(!ourUser){
-        res.status(403).send({
-            msg : "malformed token!!"
-        })
-    }
-
-    // now all correct //Authentication done
+app.post("/notes",authMiddleware ,(req,res)=>{
+    const ourUser = req.username;
 
     const new_note= req.body.note;
     // stored the note that came from the client
@@ -112,28 +94,8 @@ app.post("/notes",(req,res)=>{
 
 
 //get all my notes -- AUTHENTICATED END POINT 
-app.get("/notes",(req,res)=>{
-        //auth things //copy pastes from post
-    const given_token = req.headers.token;
-    
-    //if they didnt sent the token
-    if(!given_token){
-        res.status(403).send({
-            msg : "You are not logged in"
-        })
-        return;
-    }
-    const decrypted_token = jwt.verify(given_token ,"secretkey");
-    const ourUser = decrypted_token.username;
-    // if there is no username like this
-    if(!ourUser){
-        res.status(403).send({
-            msg : "malformed token!!"
-        })
-    }
-
-    // now all correct //Authentication done
-
+app.get("/notes",authMiddleware ,(req,res)=>{
+    const ourUser = req.username;
     const userNotes = notes.filter(note => note.username== ourUser)
     res.json({
         notes : userNotes
