@@ -113,8 +113,30 @@ app.post("/notes",(req,res)=>{
 
 //get all my notes -- AUTHENTICATED END POINT 
 app.get("/notes",(req,res)=>{
+        //auth things //copy pastes from post
+    const given_token = req.headers.token;
+    
+    //if they didnt sent the token
+    if(!given_token){
+        res.status(403).send({
+            msg : "You are not logged in"
+        })
+        return;
+    }
+    const decrypted_token = jwt.verify(token,"secretkey");
+    const ourUser = decoded.username;
+    // if there is no username like this
+    if(!ourUser){
+        res.status(403).send({
+            msg : "malformed token!!"
+        })
+    }
+
+    // now all correct //Authentication done
+
+    const userNotes = notes.filter(note => note.username== ourUser)
     res.json({
-        notes : notes
+        notes : userNotes
     })
 })
 
