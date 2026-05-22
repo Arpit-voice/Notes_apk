@@ -32,7 +32,7 @@ app.post("/signup",(req,res)=>{
         })
     }
 
-    user.push({
+    users.push({
         username : newUsername,
         password : userPassword
 
@@ -62,7 +62,7 @@ app.get("/signin",(req,res)=>{
     // now onwards the browser will send me this token as a request in header  
     // use the protocol of json web tokens(stateless)
     const token = jwt.sign({
-        username :username
+        username :givenUsername
     }, "secretkey") 
     // only backend developer of the website know
 
@@ -87,8 +87,8 @@ app.post("/notes",(req,res)=>{
         })
         return;
     }
-    const decrypted_token = jwt.verify(token,"secretkey");
-    const ourUser = decoded.username;
+    const decrypted_token = jwt.verify(given_token ,"secretkey");
+    const ourUser = decrypted_token.username;
     // if there is no username like this
     if(!ourUser){
         res.status(403).send({
@@ -100,7 +100,7 @@ app.post("/notes",(req,res)=>{
 
     const new_note= req.body.note;
     // stored the note that came from the client
-    notes.push({note:new_note,userename :ourUser}); 
+    notes.push({note:new_note,username :ourUser}); 
     // lets send user a msg :)
     
     res.json({
@@ -123,8 +123,8 @@ app.get("/notes",(req,res)=>{
         })
         return;
     }
-    const decrypted_token = jwt.verify(token,"secretkey");
-    const ourUser = decoded.username;
+    const decrypted_token = jwt.verify(given_token ,"secretkey");
+    const ourUser = decrypted_token.username;
     // if there is no username like this
     if(!ourUser){
         res.status(403).send({
