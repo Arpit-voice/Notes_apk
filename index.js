@@ -1,4 +1,5 @@
 const express = require("express");
+const jwt = require("jsonwebtoken")
 
 const app = express();
 
@@ -57,7 +58,11 @@ app.get("/signin",(req,res)=>{
     // lets say user exist /// now server backend person will create some token(string) with their encryption method 
     // and return the token to the browser
     // now onwards the browser will send me this token as a request in header  
-    const token = givenUsername *5 +2-18328 +"qwertyuioasdfghjkzxcvbn"   // for example //  but predictable
+    // use the protocol of json web tokens(stateless)
+    const token = jwt.sign({
+        username :username
+    }, "secretkey") 
+    // only backend developer of the website know
 
     res.json({
         token : token
@@ -68,7 +73,29 @@ app.get("/signin",(req,res)=>{
 
 
 //create a note //client give the note in json body 
+//AUTHENTICATED END POINT 
 app.post("/notes",(req,res)=>{
+    //auth things
+    const given_token = req.headers.token;
+    
+    //if they didnt sent the token
+    if(!given_token){
+        res.status(403).send({
+            msg : "You are not logged in"
+        })
+        return;
+    }
+    const decrypted_token = jwt.verify(token,"secretkey");
+    const ourUser = decoded.username;
+    // if there is no username like this
+    if(!ourUser){
+        res.status(403).send({
+            msg : "malformed token!!"
+        })
+    }
+
+    // now all correct //Authentication done
+
     const new_note= req.body.note;
     // stored the note that came from the client
     notes.push(new_note); 
@@ -82,7 +109,7 @@ app.post("/notes",(req,res)=>{
 })
 
 
-//get all my notes 
+//get all my notes -- AUTHENTICATED END POINT 
 app.get("/notes",(req,res)=>{
     res.json({
         notes
@@ -93,6 +120,7 @@ app.get("/notes",(req,res)=>{
 //***IMPORTANT 
 // above all were backend end point 
 // but this time we are writing for frontend end point beacuse we are both-frontend and backend developer 
+// UN-AUTHENTICATED END POINT
 app.get("/",(req,res)=>{
     res.sendFile("/home/arpit/classes_webDevelopment/notes_apk/frontend/index.html")
 })
