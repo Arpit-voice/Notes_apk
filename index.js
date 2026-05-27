@@ -9,16 +9,32 @@ app.use(express.json())
 const path = require("path");
 app.use(express.static("frontend"));  ////css file also came 
 
-const notes = [] // this is bad (in memory db-storing in a variable like this), later we will use mongodb,postgres and mysql for storing databases
+let id =1;
+let user_id =1;
+let notes = [
+    // {
+    //     id : 1,
+    //     note :"go to gym"
+    //     user_id: 
+    // },{
+    //     id :2,
+    //     note: "eat dinner"
+    //     user_id :
+    // }
+] // this is bad (in memory db-storing in a variable like this), later we will use mongodb,postgres and mysql for storing databases
 // for multi users notes structure will change to array of objects instead of string
 // const notes = [{username :"Arpit",note :"go to bed"}]
-const users = [{
-    username : "Arpit",
-    password : "123123"
-},{
-    username : "Soni",
-    password : "321321"
-}]
+const users = [
+// {
+//     user_id= 1
+//     username : "Arpit",
+//     password : "123123"
+// },{
+//     user_id = 2
+//     username : "Soni",
+//     password : "321321"
+// }
+]
 
 
 // signup page 
@@ -34,6 +50,7 @@ app.post("/signup",(req,res)=>{
     }
 
     users.push({
+        user_id : user_id++,
         username : newUsername,
         password : userPassword
 
@@ -63,7 +80,7 @@ app.post("/signin",(req,res)=>{
     // now onwards the browser will send me this token as a request in header  
     // use the protocol of json web tokens(stateless)
     const token = jwt.sign({
-        username :givenUsername
+        user_id : userExist.user_id
     }, "secretkey") 
     // only backend developer of the website know
 
@@ -78,11 +95,14 @@ app.post("/signin",(req,res)=>{
 //create a note //client give the note in json body 
 //AUTHENTICATED END POINT 
 app.post("/notes",authMiddleware ,(req,res)=>{
-    const ourUser = req.username;
+    const ourUser_id = req.user_id;
 
     const new_note= req.body.note;
     // stored the note that came from the client
-    notes.push({note:new_note,username :ourUser}); 
+    notes.push({
+        id : id++,
+        note:new_note,
+        user_id:ourUser_id}); 
     // lets send user a msg :)
     
     res.json({
@@ -95,11 +115,31 @@ app.post("/notes",authMiddleware ,(req,res)=>{
 
 //get all my notes -- AUTHENTICATED END POINT 
 app.get("/notes",authMiddleware ,(req,res)=>{
-    const ourUser = req.username;
-    const userNotes = notes.filter(note => note.username== ourUser)
+    const ourUser_id = req.user_id;
+    const userNotes = notes.filter(note => note.user_id === ourUser_id)
     res.json({
         notes : userNotes
     })
+})
+
+app.delete("/notes/:todo_id",authMiddleware, (req,res)=>{
+    const ourUser_id = req.user_id;
+    const id = parseInt(req.params.todo_id);
+
+    const doesUserOwnTodo = notes.find(note => note.user_id===ourUser_id && note.id===id);
+
+    if(!doesUserOwnTodo) {
+        res.status(411).json({
+            msg : "either todo does not exist or this is not your todo"
+        })
+        return 
+    }
+
+    notes = notes.filter(note=> note.id !== id)
+    res.json({
+            message: "Deleted"
+        })
+
 })
 
 

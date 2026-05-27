@@ -11,11 +11,10 @@
             Loading...
             <!-- in the starting it will be empty na !!
             <div class="note">
-                <h2>heading</h2>
                 <p>content will be get dumped here </p>
+                <button class="delete button" onclick =`DeleteTodo(${todoid})`>Delete</button>
             </div> 
-            <div class="note">
-                <h2>heading</h2>
+            <div class="note" display:flex >
                 <p>content will be get dumped here </p> 
             </div>  -->
         </div>
@@ -42,12 +41,15 @@
 
             document.getElementById("notes").innerHTML= "";
             // appending the notes one by one 
+            
             for (let i = 0; i < notes.length; i++) {
                 const element = notes[i]  ;
                 const newDiv = document.createElement("div") 
                 newDiv.setAttribute("class","note")
-                newDiv.setAttribute("style","border :2px solid black ;border-radius: 10px ; padding: 20px;margin :20px")
-                newDiv.innerHTML= element.note
+                newDiv.setAttribute("style","border :2px solid black ;border-radius: 10px ; padding: 20px;margin :20px ;display:flex ;justify-content: space-between;")
+                
+                const deletehtml = `<button class="delete button" onclick ="DeleteTodo(${element.id})"> Delete </button>`
+                newDiv.innerHTML= `<div> ${element.note}</div> `+ deletehtml ; 
 
                 document.getElementById("notes").appendChild(newDiv);
             }                  
@@ -68,12 +70,22 @@
             // create new div
             const newDiv = document.createElement("div") 
             newDiv.setAttribute("class","note")
-            newDiv.setAttribute("style","border :2px solid black ;border-radius: 10px ; padding: 20px;margin :20px")
+            newDiv.setAttribute("style","border :2px solid black ;border-radius: 10px ; padding: 20px;margin :20px; display:flex;justify-content: space-between;")
             newDiv.innerHTML= inputText
             document.getElementById("notes").appendChild(newDiv);
 
             //empty the input box
+            await GetTODOs()
             document.getElementById("inp").value =""
+        }
+        async function DeleteTodo(todoId){
+            const response = await axios.delete(`http://localhost:3000/notes/${todoId}`,{
+                headers :{
+                    "token" : localStorage.getItem("token")
+                }
+            }) 
+            
+            await GetTODOs()
         }
     </script>
 
