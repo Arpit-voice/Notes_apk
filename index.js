@@ -31,13 +31,11 @@ app.post("/signup",async (req,res)=>{
     // }
 
     /// query = INSERT INTO users (username , password) VALUES ('newUsername','userPassword');
-    let query = " INSERT INTO users (username , password) VALUES (' " ///first string 
-    + newUsername +     
-    "','"               ///2nd string
-    + userPassword +
-     "');"    ;  /// 3rd string
+    ///A VERY BAD WAY TO DO SQL USING PG -- THIS IS ALSO VULNARABLE TO SQL INJECTION  //
+    let query = `INSERT INTO users (username , password) VALUES ('${newUsername}',' ${userPassword} ');`
     console.log(query)
-    await pool.query(query)
+    const response = await pool.query(query)
+    console.log(response)     //// will not get any id sadd
 
     res.json({
         // id : newUser._id,    /////._id is an object while .id is string///infact database me to _id hi hota hai key to
