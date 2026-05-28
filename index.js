@@ -1,7 +1,11 @@
 const express = require("express");
 const jwt = require("jsonwebtoken")
 const{ authMiddleware } = require("./middlewares")
-const {usermodel,notemodel} = require("./models.js")
+const {Pool} = require("pg")
+
+const pool= new Pool({
+    connectionString : "postgresql://neondb_owner:npg_BniQ96PuJcIb@ep-rough-math-ap0c7osc-pooler.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+})
 
 const app = express();
 
@@ -15,24 +19,28 @@ app.post("/signup",async (req,res)=>{
     const newUsername = req.body.username;
     const userPassword = req.body.password;
 
-    const userExist = await usermodel.findOne({
-        username : newUsername,
-        password : userPassword
-    })
+    // const userExist = await usermodel.findOne({
+    //     username : newUsername,
+    //     password : userPassword
+    // })
 
-    if(userExist){
-        return res.status(403).json({
-            msg : "User with this username already exists"
-        })
-    }
+    // if(userExist){
+    //     return res.status(403).json({
+    //         msg : "User with this username already exists"
+    //     })
+    // }
 
-    const newUser = await usermodel.create({
-        username : newUsername,
-        password : userPassword
-    })
+    /// query = INSERT INTO users (username , password) VALUES ('newUsername','userPassword');
+    let query = " INSERT INTO users (username , password) VALUES (' " ///first string 
+    + newUsername +     
+    "','"               ///2nd string
+    + userPassword +
+     "');"    ;  /// 3rd string
+    console.log(query)
+    await pool.query(query)
 
     res.json({
-        id : newUser._id,    /////._id is an object while .id is string///infact database me to _id hi hota hai key to
+        // id : newUser._id,    /////._id is an object while .id is string///infact database me to _id hi hota hai key to
         msg : "You have signed up"
     })
 })
