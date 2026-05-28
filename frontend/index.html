@@ -46,7 +46,6 @@
                 const element = notes[i]  ;
                 const newDiv = document.createElement("div") 
                 newDiv.setAttribute("class","note")
-                newDiv.setAttribute("style","border :2px solid black ;border-radius: 10px ; padding: 20px;margin :20px ;display:flex ;justify-content: space-between;")
                 
                 const deletehtml = `<button class="delete button" onclick ="DeleteTodo('${element._id}')"> Delete </button>`
                 newDiv.innerHTML= `<div> ${element.note}</div> `+ deletehtml ; 

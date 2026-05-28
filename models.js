@@ -18,6 +18,8 @@ const notesSchema = new mongoose.Schema({
 const usermodel = mongoose.model("users",userSchema)
 const notemodel = mongoose.model("notes",notesSchema)
 
+
+
 module.exports = {
     usermodel,
     notemodel

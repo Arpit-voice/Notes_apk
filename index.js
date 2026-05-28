@@ -31,10 +31,10 @@ app.post("/signup",async (req,res)=>{
     // }
 
     /// query = INSERT INTO users (username , password) VALUES ('newUsername','userPassword');
-    ///A VERY BAD WAY TO DO SQL USING PG -- THIS IS ALSO VULNARABLE TO SQL INJECTION  //
-    let query = `INSERT INTO users (username , password) VALUES ('${newUsername}',' ${userPassword} ') RETURNING id;`
+    ///another better way//
+    let query = `INSERT INTO users (username , password) VALUES ($1,$2) RETURNING id;`  
     console.log(query)
-    const response = await pool.query(query)
+    const response = await pool.query(query,[newUsername,userPassword])
     console.log(response)     //// will get id this time 
 
     res.json({
@@ -49,15 +49,27 @@ app.post("/signin",async (req,res)=>{
     const givenUsername = req.body.username;
     const givenPassword = req.body.password;
     
-    const userExist =await usermodel.findOne({
-        username : givenUsername,
-        password : givenPassword
-    })
+    // const userExist =await usermodel.findOne({
+    //     username : givenUsername,
+    //     password : givenPassword
+    // })
+    // if(!userExist){
+    //     res.status(403).json({
+    //         msg : "Incorrect Credentials"
+    //     })
+    //     return 
+    // }
+    let query = `SELECT * FROM users WHERE username =$1 AND password =$2` 
+    console.log(query)
+    const response = await pool.query(query,[givenUsername,givenPassword])
+    console.log(response)
+
+    const userExist = response.rows[0];
     if(!userExist){
-        res.status(403).json({
+        res.status(411).json({
             msg : "Incorrect Credentials"
         })
-        return 
+        return
     }
 
     // lets say user exist /// now server backend person will create some token(string) with their encryption method 
@@ -70,7 +82,8 @@ app.post("/signin",async (req,res)=>{
     // only backend developer of the website know
 
     res.json({
-        token : token
+        token : token,
+        msg : " signin done"
     })
     
 })
