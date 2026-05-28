@@ -1,73 +1,52 @@
 const express = require("express");
 const jwt = require("jsonwebtoken")
 const{ authMiddleware } = require("./middlewares")
+const {usermodel,notemodel} = require("./models.js")
 
 const app = express();
 
 app.use(express.json())
 
-const path = require("path");
 app.use(express.static("frontend"));  ////css file also came 
-
-let id =1;
-let user_id =1;
-let notes = [
-    // {
-    //     id : 1,
-    //     note :"go to gym"
-    //     user_id: 
-    // },{
-    //     id :2,
-    //     note: "eat dinner"
-    //     user_id :
-    // }
-] // this is bad (in memory db-storing in a variable like this), later we will use mongodb,postgres and mysql for storing databases
-// for multi users notes structure will change to array of objects instead of string
-// const notes = [{username :"Arpit",note :"go to bed"}]
-const users = [
-// {
-//     user_id= 1
-//     username : "Arpit",
-//     password : "123123"
-// },{
-//     user_id = 2
-//     username : "Soni",
-//     password : "321321"
-// }
-]
 
 
 // signup page 
-app.post("/signup",(req,res)=>{
+app.post("/signup",async (req,res)=>{
     const newUsername = req.body.username;
     const userPassword = req.body.password;
 
-    const userExist = users.find(user => user.username == newUsername )
+    const userExist = await usermodel.findOne({
+        username : newUsername,
+        password : userPassword
+    })
+
     if(userExist){
         return res.status(403).json({
             msg : "User with this username already exists"
         })
     }
 
-    users.push({
-        user_id : user_id++,
+    const newUser = await usermodel.create({
         username : newUsername,
         password : userPassword
-
     })
 
     res.json({
+        id : newUser._id,    /////._id is an object while .id is string///infact database me to _id hi hota hai key to
         msg : "You have signed up"
     })
 })
 
 //signin page 
 // :( signin is a post method:) get req have no body
-app.post("/signin",(req,res)=>{
+app.post("/signin",async (req,res)=>{
     const givenUsername = req.body.username;
     const givenPassword = req.body.password;
-
-    const userExist = users.find(user => user.username === givenUsername && user.password === givenPassword  )
+    
+    const userExist =await usermodel.findOne({
+        username : givenUsername,
+        password : givenPassword
+    })
     if(!userExist){
         res.status(403).json({
             msg : "Incorrect Credentials"
@@ -80,7 +59,7 @@ app.post("/signin",(req,res)=>{
     // now onwards the browser will send me this token as a request in header  
     // use the protocol of json web tokens(stateless)
     const token = jwt.sign({
-        user_id : userExist.user_id
+        user_id : userExist.id
     }, "secretkey") 
     // only backend developer of the website know
 
@@ -94,19 +73,19 @@ app.post("/signin",(req,res)=>{
 
 //create a note //client give the note in json body 
 //AUTHENTICATED END POINT 
-app.post("/notes",authMiddleware ,(req,res)=>{
+app.post("/notes",authMiddleware ,async(req,res)=>{
     const ourUser_id = req.user_id;
 
     const new_note= req.body.note;
     // stored the note that came from the client
-    notes.push({
-        id : id++,
-        note:new_note,
-        user_id:ourUser_id}); 
-    // lets send user a msg :)
-    
+    const newNote = await notemodel.create({
+        note : new_note,
+        user_id : ourUser_id
+    })
+       
     res.json({
-        msg:"Done!"
+        msg:"Done!",
+        _id : newNote._id
     })
 
 
@@ -114,19 +93,27 @@ app.post("/notes",authMiddleware ,(req,res)=>{
 
 
 //get all my notes -- AUTHENTICATED END POINT 
-app.get("/notes",authMiddleware ,(req,res)=>{
+app.get("/notes",authMiddleware ,async (req,res)=>{
     const ourUser_id = req.user_id;
-    const userNotes = notes.filter(note => note.user_id === ourUser_id)
+    // const userNotes = notes.filter(note => note.user_id === ourUser_id)
+    const userNotes =await notemodel.find({
+        user_id : ourUser_id,
+    })
+
     res.json({
         notes : userNotes
     })
 })
 
-app.delete("/notes/:todo_id",authMiddleware, (req,res)=>{
+app.delete("/notes/:todo_id",authMiddleware,async (req,res)=>{
     const ourUser_id = req.user_id;
-    const id = parseInt(req.params.todo_id);
+    const id_tobeDeleted= req.params.todo_id;
 
-    const doesUserOwnTodo = notes.find(note => note.user_id===ourUser_id && note.id===id);
+    // const doesUserOwnTodo = notes.find(note => note.user_id===ourUser_id && note.id===id);
+    const doesUserOwnTodo = await notemodel.findOne({
+        _id : id_tobeDeleted,
+        user_id : ourUser_id
+    })
 
     if(!doesUserOwnTodo) {
         res.status(411).json({
@@ -135,7 +122,10 @@ app.delete("/notes/:todo_id",authMiddleware, (req,res)=>{
         return 
     }
 
-    notes = notes.filter(note=> note.id !== id)
+    // notes = notes.filter(note=> note.id !== id)
+    await notemodel.deleteOne({
+        _id : id_tobeDeleted,
+    })
     res.json({
             message: "Deleted"
         })

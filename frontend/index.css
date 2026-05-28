@@ -14,7 +14,10 @@ body{
     border :2px solid black ;
     border-radius: 10px ;
     padding: 20px;
-    margin :20px
+    margin :20px;
+    display:flex;
+    justify-content: space-between;
+
 }
 #rightSideThings{
     display:flex;

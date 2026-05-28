@@ -48,7 +48,7 @@
                 newDiv.setAttribute("class","note")
                 newDiv.setAttribute("style","border :2px solid black ;border-radius: 10px ; padding: 20px;margin :20px ;display:flex ;justify-content: space-between;")
                 
-                const deletehtml = `<button class="delete button" onclick ="DeleteTodo(${element.id})"> Delete </button>`
+                const deletehtml = `<button class="delete button" onclick ="DeleteTodo('${element._id}')"> Delete </button>`
                 newDiv.innerHTML= `<div> ${element.note}</div> `+ deletehtml ; 
 
                 document.getElementById("notes").appendChild(newDiv);
@@ -70,20 +70,26 @@
             // create new div
             const newDiv = document.createElement("div") 
             newDiv.setAttribute("class","note")
-            newDiv.setAttribute("style","border :2px solid black ;border-radius: 10px ; padding: 20px;margin :20px; display:flex;justify-content: space-between;")
-            newDiv.innerHTML= inputText
+           
+            console.log(response)
+            console.log(response.data)
+            console.log(response.data._id)
+            const deletehtml = `<button class="delete button" onclick ="DeleteTodo('${response.data._id}')"> Delete </button>`
+
+            newDiv.innerHTML= `<div>${inputText}</div>` + deletehtml
             document.getElementById("notes").appendChild(newDiv);
 
             //empty the input box
-            await GetTODOs()
             document.getElementById("inp").value =""
         }
         async function DeleteTodo(todoId){
+            console.log(todoId);
             const response = await axios.delete(`http://localhost:3000/notes/${todoId}`,{
                 headers :{
                     "token" : localStorage.getItem("token")
                 }
-            }) 
+            })
+            console.log(response.data) 
             
             await GetTODOs()
         }

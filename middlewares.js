@@ -9,7 +9,7 @@ function authMiddleware (req,res,next){
         res.status(403).send({
             msg : "You are not logged in"
         })
-        window.location ="/signup"
+        //window doesnt exist in node.js
         return;
     }
     const decrypted_token = jwt.verify(given_token ,"secretkey");
