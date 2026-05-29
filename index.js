@@ -2,10 +2,19 @@ const express = require("express");
 const jwt = require("jsonwebtoken")
 const{ authMiddleware } = require("./middlewares")
 const {Pool} = require("pg")
+const bcrypt = require("bcrypt")
 
 const pool= new Pool({
     connectionString : "postgresql://neondb_owner:npg_BniQ96PuJcIb@ep-rough-math-ap0c7osc-pooler.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+    ,connectionTimeoutMillis: 30000,
 })
+// Wake up NeonDB on server start
+pool.connect()
+    .then(client => {
+        console.log("DB warmed up!");
+        client.release();
+    })
+    .catch(err => console.log("DB warm up failed:", err.message));
 
 const app = express();
 
@@ -18,6 +27,7 @@ app.use(express.static("frontend"));  ////css file also came
 app.post("/signup",async (req,res)=>{
     const newUsername = req.body.username;
     const userPassword = req.body.password;
+    const hashedPassword = await bcrypt.hash(userPassword,10);
 
     // const userExist = await usermodel.findOne({
     //     username : newUsername,
@@ -30,17 +40,21 @@ app.post("/signup",async (req,res)=>{
     //     })
     // }
 
-    /// query = INSERT INTO users (username , password) VALUES ('newUsername','userPassword');
-    ///another better way//
+// query = INSERT INTO users (username , password) VALUES ('newUsername','userPassword');
+    //another better way//
     let query = `INSERT INTO users (username , password) VALUES ($1,$2) RETURNING id;`  
     console.log(query)
-    const response = await pool.query(query,[newUsername,userPassword])
-    console.log(response)     //// will get id this time 
-
-    res.json({
-        id : response.rows[0].id,  
-        msg : "You have signed up"
-    })
+    try {
+        const response = await pool.query(query,[newUsername,hashedPassword])
+        console.log(response)     //// will get id this time 
+        
+        res.json({
+            id : response.rows[0].id,  
+            msg : "You have signed up"
+        })
+    }catch(err){
+        console.log("signup error :" +err )
+    }
 })
 
 //signin page 
@@ -59,15 +73,15 @@ app.post("/signin",async (req,res)=>{
     //     })
     //     return 
     // }
-    let query = `SELECT * FROM users WHERE username =$1 AND password =$2` 
+    let query = `SELECT * FROM users WHERE username =$1` 
     console.log(query)
-    const response = await pool.query(query,[givenUsername,givenPassword])
+    const response = await pool.query(query,[givenUsername])
     console.log(response)
 
     const userExist = response.rows[0];
     if(!userExist){
         res.status(411).json({
-            msg : "Incorrect Credentials"
+            msg : "No user with this username exists"
         })
         return
     }
@@ -76,6 +90,14 @@ app.post("/signin",async (req,res)=>{
     // and return the token to the browser
     // now onwards the browser will send me this token as a request in header  
     // use the protocol of json web tokens(stateless)
+    const correctPassword =await bcrypt.compare(givenPassword, userExist.password); 
+    // bcrypt will firstly import salt of the DB password then pair it with given password and hash the given and then compare with both 
+    if(!correctPassword) {
+        res.json({
+            msg : "YOUR PASSWORD IS INCORRECT !!!"
+        })
+    }
+    
     const token = jwt.sign({
         user_id : userExist.id
     }, "secretkey") 
