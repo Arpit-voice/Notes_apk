@@ -4,24 +4,36 @@ const{ authMiddleware } = require("./middlewares")
 const {Pool} = require("pg")
 const bcrypt = require("bcrypt")
 
+
 const pool= new Pool({
-    connectionString : "postgresql://neondb_owner:npg_BniQ96PuJcIb@ep-rough-math-ap0c7osc-pooler.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+    connectionString : "postgresql://neondb_owner:npg_BniQ96PuJcIb@ep-rough-math-ap0c7osc-pooler.c-7.us-east-1.aws.neon.tech/neondb?sslmode=verify-full&connect_timeout=30"
     ,connectionTimeoutMillis: 30000,
+    max: 2,
 })
 // Wake up NeonDB on server start
-pool.connect()
-    .then(client => {
-        console.log("DB warmed up!");
-        client.release();
-    })
-    .catch(err => console.log("DB warm up failed:", err.message));
+    const warmUp = async (retries = 10) => {
+    for (let i = 1; i <= retries; i++) {
+        try {
+            const client = await pool.connect();
+            console.log("DB warmed up!");
+            client.release();
+            return;
+        } catch (err) {
+            const msg = err.message || err.errors?.[0]?.message || "unknown error";
+            console.log(`Warm-up attempt ${i}/${retries} failed: ${msg} — retrying in 8s...`);
+            if (i < retries) await new Promise(r => setTimeout(r, 8000)); // wait 8 seconds
+        }
+    }
+    console.log("DB could not be warmed up after all retries");
+};
+
+warmUp();
 
 const app = express();
 
 app.use(express.json())
 
 app.use(express.static("frontend"));  ////css file also came 
-
 
 // signup page 
 app.post("/signup",async (req,res)=>{
@@ -45,15 +57,16 @@ app.post("/signup",async (req,res)=>{
     let query = `INSERT INTO users (username , password) VALUES ($1,$2) RETURNING id;`  
     console.log(query)
     try {
-        const response = await pool.query(query,[newUsername,hashedPassword])
-        console.log(response)     //// will get id this time 
-        
+        const response = await pool.query(query, [newUsername, hashedPassword]);
+        console.log(response);
         res.json({
-            id : response.rows[0].id,  
-            msg : "You have signed up"
-        })
-    }catch(err){
-        console.log("signup error :" +err )
+            id: response.rows[0].id, 
+            msg: "You have signed up" 
+        });
+    } catch(err) {
+        const msg = err.message || err.errors?.map(e => e.message).join(', ') || JSON.stringify(err);
+        console.log("signup error:", msg);
+        res.status(500).json({ msg: "Signup failed: " + msg });
     }
 })
 
