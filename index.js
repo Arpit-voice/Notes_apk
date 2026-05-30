@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken")
 const{ authMiddleware } = require("./middlewares")
 const {Pool} = require("pg")
 const bcrypt = require("bcrypt")
-
+const z= require("zod")
 
 const pool= new Pool({
     connectionString : "postgresql://neondb_owner:npg_BniQ96PuJcIb@ep-rough-math-ap0c7osc-pooler.c-7.us-east-1.aws.neon.tech/neondb?sslmode=verify-full&connect_timeout=30"
@@ -35,10 +35,28 @@ app.use(express.json())
 
 app.use(express.static("frontend"));  ////css file also came 
 
+const signupSchema = z.object({
+    username : z.string().min(3),
+    password : z.string().min(3),
+    email : z.email()
+})
+
+
+
 // signup page 
 app.post("/signup",async (req,res)=>{
+    /// Input schema check 
+    /// req.body = {"username" : string , "password": string , "email":string}
+    const {data , success ,error} = signupSchema.safeParse(req.body)
+    if(!success)(
+        res.status(403).json({
+            msg : "Incorrect input formats",
+            error : JSON.parse()
+        })
+    )
+
     const newUsername = req.body.username;
-    const userPassword = req.body.password;
+    const userPassword = data.password;
     const hashedPassword = await bcrypt.hash(userPassword,10);
 
     // const userExist = await usermodel.findOne({
